@@ -12,8 +12,8 @@ using Project.Data;
 namespace Project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230620121400_Initial")]
-    partial class Initial
+    [Migration("20230621051717_Currenccy")]
+    partial class Currenccy
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -349,14 +349,17 @@ namespace Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DrinkId")
+                    b.Property<int?>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DrinkId")
                         .HasColumnType("int");
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<double>("Payment")
-                        .HasColumnType("float");
+                    b.Property<decimal>("Payment")
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -368,6 +371,8 @@ namespace Project.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CartId");
 
                     b.HasIndex("DrinkId");
 
@@ -527,11 +532,13 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Models.OrderDetail", b =>
                 {
+                    b.HasOne("Project.Models.Cart", null)
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("CartId");
+
                     b.HasOne("Project.Models.Drink", "Drink")
                         .WithMany()
-                        .HasForeignKey("DrinkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DrinkId");
 
                     b.HasOne("Project.Models.Order", null)
                         .WithMany("OrderDetails")
@@ -572,6 +579,11 @@ namespace Project.Migrations
             modelBuilder.Entity("Project.Models.AppUser", b =>
                 {
                     b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Project.Models.Cart", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Project.Models.Category", b =>

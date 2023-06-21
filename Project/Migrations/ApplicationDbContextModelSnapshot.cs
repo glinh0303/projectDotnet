@@ -347,17 +347,17 @@ namespace Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DrinkId")
+                    b.Property<int?>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DrinkId")
                         .HasColumnType("int");
 
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<double>("Payment")
-                        .HasColumnType("float");
-
-                    b.Property<int?>("ProfileUserId")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Payment")
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -370,11 +370,11 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CartId");
+
                     b.HasIndex("DrinkId");
 
                     b.HasIndex("OrderId");
-
-                    b.HasIndex("ProfileUserId");
 
                     b.ToTable("OrderDetail", (string)null);
                 });
@@ -530,23 +530,19 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Models.OrderDetail", b =>
                 {
+                    b.HasOne("Project.Models.Cart", null)
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("CartId");
+
                     b.HasOne("Project.Models.Drink", "Drink")
                         .WithMany()
-                        .HasForeignKey("DrinkId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DrinkId");
 
                     b.HasOne("Project.Models.Order", null)
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId");
 
-                    b.HasOne("Project.Models.Profile", "Profile")
-                        .WithMany()
-                        .HasForeignKey("ProfileUserId");
-
                     b.Navigation("Drink");
-
-                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("Project.Models.Profile", b =>
@@ -581,6 +577,11 @@ namespace Project.Migrations
             modelBuilder.Entity("Project.Models.AppUser", b =>
                 {
                     b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("Project.Models.Cart", b =>
+                {
+                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Project.Models.Category", b =>

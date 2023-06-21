@@ -20,17 +20,19 @@ namespace Project.Controllers
         }
 
         // GET: Carts
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            /*  IQueryable<Cart> ordersQuery = _context.Cart.Include(c => c.User).Include(o => o.OrderDetail);*/
-            /*  if (userId != null)
-              {
-                  ordersQuery = ordersQuery.Where(order => order.OrderDetail.Any(g => g.Id == userId));
-              }*/
-            /* var cart = await ordersQuery.ToListAsync();*/
-            /*  return View(cart);*/
-            /*       var applicationDbContext = _context.Cart.Include(c => c.User).Include(o => o.OrderDetails);
-                   return View(await applicationDbContext.ToListAsync());*/
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            int userId = user.Id;
+            var orderDetails = await _context.OrderDetails.Include(d => d.Drink).Include(t => t.Toppings).Where(o => o.UserId == userId).ToListAsync();
+            ViewBag.OrderDetails = orderDetails;
+            decimal total = 0;
+            foreach (var item in orderDetails)
+            {
+                total += item.Payment;          
+            }
+            ViewBag.Total = total;
             return View();
         }
 

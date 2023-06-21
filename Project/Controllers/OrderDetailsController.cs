@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -76,8 +77,8 @@ namespace Project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
-     
+/*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
+*/     
             return View(orderDetail);
         }
 
@@ -131,8 +132,8 @@ namespace Project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
-           
+/*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
+*/           
             return View(orderDetail);
         }
 
@@ -191,6 +192,7 @@ namespace Project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Order([Bind("Quantity,Payment,Drink,Size,UserId")] OrderDetail orderDetail, int[] selectedToppings, int id)
         {
             Drink drink = await _context.Drinks.FindAsync(id);
@@ -201,7 +203,7 @@ namespace Project.Controllers
 
             if (ModelState.IsValid)
             {
-                double payment = DoSize(orderDetail);
+                decimal payment = DoSize(orderDetail);
                 if (selectedToppings != null)
                 {
                     orderDetail.Toppings = _context.Toppings.Where(x => selectedToppings.Contains(x.Id)).ToList();
@@ -210,12 +212,13 @@ namespace Project.Controllers
 
                 }
                 int quantity = orderDetail.Quantity;
-                orderDetail.Payment = payment * quantity;
-                drink.Quantity -= quantity;  
+                orderDetail.Payment = (payment * quantity);
+                /*  drink.Quantity -= quantity;  */
+
                 orderDetail.UserId = userId;
                 _context.Add(orderDetail);
                 await _context.SaveChangesAsync();
-                await TryUpdateModelAsync(drink);
+               /* await TryUpdateModelAsync(drink);*/
                 return Redirect(Url.Action("Order", "Drinks"));
       
             }
@@ -223,9 +226,9 @@ namespace Project.Controllers
             return View(orderDetail);
         }
 
-        private double DoSize(OrderDetail orderDetail)
+        private decimal DoSize(OrderDetail orderDetail)
         {
-            double price = (double)orderDetail.Drink.Price;
+            decimal price = orderDetail.Drink.Price;
             if (orderDetail.Size == DrinkSize.M)
             {
                 price += 5;
@@ -237,11 +240,11 @@ namespace Project.Controllers
             return price;
         }
 
-        private double DoToppings(List<Topping> toppings, double payment)
+        private decimal DoToppings(List<Topping> toppings, decimal payment)
         {
             foreach (var topping in toppings)
             {
-                payment += (double)topping.Price;
+                payment += topping.Price;
             }
             return payment;
         }

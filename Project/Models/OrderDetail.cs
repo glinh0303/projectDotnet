@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Xml.Linq;
 
 namespace Project.Models
@@ -7,12 +9,13 @@ namespace Project.Models
     {
         public int Id { get; set; }      
         public int Quantity { get; set; }
-        public double Payment { get; set; }
-        public int DrinkId { get; set; }
+        [DataType(DataType.Currency)]
+        [Column(TypeName = "decimal(18, 3)")]
+        [Range(0, (double)decimal.MaxValue)]
+        public decimal Payment { get; set; }
         public Drink Drink { get; set; }
         public DrinkSize Size { get; set; }
         public ICollection<Topping> Toppings { get; set; }
-      /*  public Profile Profile { get; set; }*/
         public int UserId { get; set; }
     }
 }

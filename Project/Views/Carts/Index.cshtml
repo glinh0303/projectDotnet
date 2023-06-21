@@ -1,5 +1,4 @@
-﻿@using Project.Models;
-@model IEnumerable<Project.Models.Cart>
+﻿@model Project.Models.Cart
 
 @{
     ViewData["Title"] = "Cart";
@@ -7,9 +6,6 @@
 
 <h1>Cart</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
 <table class="table">
     <thead>
         <tr>
@@ -32,39 +28,40 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @{
+            List<OrderDetail> orderDetails = ViewBag.OrderDetails;
+        }
+        @foreach (var item in orderDetails)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.OrderDetail.Drink.Name)
+                    @Html.DisplayFor(modelItem => item.Drink.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.OrderDetail.Quantity)
+                    @Html.DisplayFor(modelItem => item.Quantity)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.OrderDetail.Payment)
+                    @Html.DisplayFor(modelItem => item.Payment)
                 </td>
                 <td>
-                    @{
-                        List<Topping> toppings = (List<Topping>)item.OrderDetail.Toppings;
-                        foreach (var topping in toppings)
-                        {
-                            <p>@topping.Name</p>
-                            <br />
-                        }
-
+                    @foreach (var topping in item.Toppings)
+                    {
+                        <p>@topping.Name</p>
+                        <br />
                     }
-                  @*  @Html.DisplayFor(modelItem => item.OrderDetail.Drink.Name)*@
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.OrderDetail.Size)
+                    @Html.DisplayFor(modelItem => item.Size)
                 </td>
                 <td>
-                    @*  <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |*@
                     <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
                 </td>
             </tr>
         }
-    </tbody>
+    <td>
+        <h4>Total: @ViewBag.Total</h4>       
+    </td>
+    <td><button>Order</button></td>
+    </tbody>   
 </table>
+
