@@ -1,4 +1,4 @@
-﻿namespace GenreApp.Models.Binding_Models
+﻿namespace Project.Models.BindingModels
 {
     public class LogoutModel
     {

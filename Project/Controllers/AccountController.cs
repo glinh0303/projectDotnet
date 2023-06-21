@@ -7,8 +7,8 @@ using Project.Data;
 using Project.Models;
 using System.Text.Encodings.Web;
 using System.Text;
-using GenreApp.Models.Binding_Models;
 using Microsoft.EntityFrameworkCore;
+using Project.Models.BindingModels;
 
 namespace Project.Controllers
 {

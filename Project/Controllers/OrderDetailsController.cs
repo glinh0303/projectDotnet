@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
-using Project.Data.Migrations;
+/*using Project.Data.Migrations;*/
 using Project.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -25,7 +25,7 @@ namespace Project.Controllers
         public async Task<IActionResult> Index(int? toppingId)
          {
             IQueryable<OrderDetail> orderDetailsQuery = _context.OrderDetails.Include(o => o.Toppings)
-                                                                             .Include(o => o.Drink);
+                                                                             .Include(o => o.Drink);                                                                        
             if (toppingId != null)
             {
                 orderDetailsQuery = orderDetailsQuery.Where(o => o.Toppings.Any(t => t.Id == toppingId));
@@ -191,11 +191,14 @@ namespace Project.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Order([Bind("Quantity,Payment,Drink,Size")] OrderDetail orderDetail, int[] selectedToppings, int id)
+        public async Task<IActionResult> Order([Bind("Quantity,Payment,Drink,Size,UserId")] OrderDetail orderDetail, int[] selectedToppings, int id)
         {
             Drink drink = await _context.Drinks.FindAsync(id);
             orderDetail.Drink = drink;
-           
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            int userId = user.Id;
+
             if (ModelState.IsValid)
             {
                 double payment = DoSize(orderDetail);
@@ -208,7 +211,8 @@ namespace Project.Controllers
                 }
                 int quantity = orderDetail.Quantity;
                 orderDetail.Payment = payment * quantity;
-                drink.Quantity -= quantity;              
+                drink.Quantity -= quantity;  
+                orderDetail.UserId = userId;
                 _context.Add(orderDetail);
                 await _context.SaveChangesAsync();
                 await TryUpdateModelAsync(drink);

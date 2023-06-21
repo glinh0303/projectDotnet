@@ -5,12 +5,12 @@ using Project;
 using Project.Data;
 using Project.Models;
 
-/*namespace Project
+namespace Project
 {
     public class Program
     {
-        public static void Main(string[] args)
-        {*/
+        public static async Task Main(string[] args)
+        {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -23,7 +23,7 @@ using Project.Models;
                   .AddRoles<IdentityRole<int>>()
                   .AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddControllersWithViews();
-           /* builder.Services.AddScoped<IGenreService, GenreService>();*/
+            /* builder.Services.AddScoped<IGenreService, GenreService>();*/
             //Add services to the container.
             builder.Services.Configure<IdentityOptions>(options =>
             {
@@ -82,6 +82,7 @@ using Project.Models;
             app.MapRazorPages();
 
             app.Run();
-/*        }
+
+        }
     }
-}*/
+}

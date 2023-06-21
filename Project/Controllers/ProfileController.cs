@@ -1,11 +1,11 @@
-﻿using GenreApp.Data;
-using GenreApp.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Project.Data;
+using Project.Models;
 using System;
 
-namespace GenreApp.Controllers
+namespace Project.Controllers
 {
     public class ProfileController : Controller
     {

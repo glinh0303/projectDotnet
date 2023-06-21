@@ -22,6 +22,6 @@ namespace Project.Models
         public ICollection<OrderDetail> OrderDetails { get; set; }
         [ForeignKey(nameof(UserId))]
         public int UserId { get; set; }
-        public User User { get; set; }
+        /*public User User { get; set; }*/
     }
 }

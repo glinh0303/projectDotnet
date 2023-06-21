@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<IdentityUser> SignInManager
-@inject UserManager<IdentityUser> UserManager
+@using Project.Models
+@using Microsoft.EntityFrameworkCore
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Project.Data.ApplicationDbContext Context
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
@@ -17,10 +20,10 @@
 else
 {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register" id="register">Register</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login" id="login">Login</a>
         </li>
 }
 </ul>

@@ -4,6 +4,6 @@ namespace Project.Models
 {
     public class AppUser : IdentityUser<int>
     {
-      /*  public Profile Profile { get; set; }*/
+        public Profile Profile { get; set; }
     }
 }

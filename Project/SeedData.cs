@@ -10,7 +10,7 @@ namespace Project
             if (!await roleManager.Roles.AnyAsync())
             {
                 await roleManager.CreateAsync(new IdentityRole<int>("admin"));
-                await roleManager.CreateAsync(new IdentityRole<int>("manger"));
+                await roleManager.CreateAsync(new IdentityRole<int>("manager"));
             }
         }
     }

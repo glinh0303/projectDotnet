@@ -22,8 +22,9 @@ namespace Project.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Orders.Include(o => o.User);
-            return View(await applicationDbContext.ToListAsync());
+           /* var applicationDbContext = _context.Orders.Include(o => o.User);*/
+            /*return View(await applicationDbContext.ToListAsync());*/
+            return View();
         }
 
         // GET: Orders/Details/5
@@ -35,7 +36,7 @@ namespace Project.Controllers
             }
 
             var order = await _context.Orders
-                .Include(o => o.User)
+              /*  .Include(o => o.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
@@ -131,7 +132,7 @@ namespace Project.Controllers
             }
 
             var order = await _context.Orders
-                .Include(o => o.User)
+                /*.Include(o => o.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {

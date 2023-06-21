@@ -7,7 +7,7 @@ namespace Project.Models
     {
         public int Id { get; set; }
         public int? UserId { get; set; }
-        public User User { get; set; }
+    /*    public User User { get; set; }*/
         public OrderDetail OrderDetail { get; set; }
 
         [DataType(DataType.Currency)]

@@ -12,6 +12,7 @@ namespace Project.Models
         public Drink Drink { get; set; }
         public DrinkSize Size { get; set; }
         public ICollection<Topping> Toppings { get; set; }
+      /*  public Profile Profile { get; set; }*/
         public int UserId { get; set; }
     }
 }

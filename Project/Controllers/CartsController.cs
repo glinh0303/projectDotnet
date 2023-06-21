@@ -20,17 +20,18 @@ namespace Project.Controllers
         }
 
         // GET: Carts
-        public async Task<IActionResult> Index(int? userId)
+        public IActionResult Index()
         {
-            IQueryable<Cart> ordersQuery = _context.Cart.Include(c => c.User).Include(o => o.OrderDetail);
-          /*  if (userId != null)
-            {
-                ordersQuery = ordersQuery.Where(order => order.OrderDetail.Any(g => g.Id == userId));
-            }*/
-            var cart = await ordersQuery.ToListAsync();
-            return View(cart);
-     /*       var applicationDbContext = _context.Cart.Include(c => c.User).Include(o => o.OrderDetails);
-            return View(await applicationDbContext.ToListAsync());*/
+            /*  IQueryable<Cart> ordersQuery = _context.Cart.Include(c => c.User).Include(o => o.OrderDetail);*/
+            /*  if (userId != null)
+              {
+                  ordersQuery = ordersQuery.Where(order => order.OrderDetail.Any(g => g.Id == userId));
+              }*/
+            /* var cart = await ordersQuery.ToListAsync();*/
+            /*  return View(cart);*/
+            /*       var applicationDbContext = _context.Cart.Include(c => c.User).Include(o => o.OrderDetails);
+                   return View(await applicationDbContext.ToListAsync());*/
+            return View();
         }
 
         // GET: Carts/Details/5
@@ -42,7 +43,7 @@ namespace Project.Controllers
             }
 
             var cart = await _context.Cart
-                .Include(c => c.User)
+                /*.Include(c => c.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (cart == null)
             {
@@ -138,7 +139,7 @@ namespace Project.Controllers
             }
 
             var cart = await _context.Cart
-                .Include(c => c.User)
+             /*   .Include(c => c.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (cart == null)
             {

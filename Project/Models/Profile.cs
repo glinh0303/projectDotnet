@@ -40,4 +40,4 @@ namespace Project.Models
         public Nationality Nationality { get; set; }
     }
 }
-}
+

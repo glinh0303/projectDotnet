@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 using System.Xml.Linq;
 
-namespace GenreApp.Models.Binding_Models
+namespace Project.Models.BindingModels
 {
     public class RegisterModel
     {
