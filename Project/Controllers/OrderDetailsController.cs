@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
-/*using Project.Data.Migrations;*/
 using Project.Models;
+using Project.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Project.Controllers
@@ -194,9 +194,8 @@ namespace Project.Controllers
         {
             Drink drink = await _context.Drinks.FindAsync(id);
             orderDetail.Drink = drink;
-            String userName = User.Identity.Name;
-            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
-            int userId = user.Id;
+            String userName = CurrentUser.UserName;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);  
 
             if (ModelState.IsValid)
             {
@@ -208,33 +207,35 @@ namespace Project.Controllers
                     payment = DoToppings(toppings, payment);
                 }
                 int quantity = orderDetail.Quantity;
-                //orderDetail.Payment = (payment * quantity);
-                //orderDetail.UserId = userId;
-                //orderDetail.OrderStatus = 0;
+                orderDetail.Payment = (payment * quantity);
 
                 var bill = await _context.Orders.SingleOrDefaultAsync(order => order.UserId == CurrentUser.Id && order.Status == OrderStatus.Cart);
                 if (bill != null)
                 {
-                    //bill.OrderDetails.Add(orderDetail);
                     orderDetail.BillId = bill.Id;
-                    _context.OrderDetails.Add(orderDetail);
-                    //_context.Add(bill);
+                    orderDetail.Bill = bill;
+                    _context.OrderDetails.Add(orderDetail);                  
                 }
                 else
                 {
-                    bill = new Bill() { OrderDetails = new List<OrderDetail>() { orderDetail },
-                        UserId = CurrentUser.Id, Status = OrderStatus.Cart };
+                    bill = new Bill()
+                    {
+                        OrderDetails = new List<OrderDetail>(),
+                        UserId = CurrentUser.Id,
+                        Status = OrderStatus.Cart
+                    };
                     _context.Orders.Add(bill);
+                    await _context.SaveChangesAsync();
                     //Luôn duy tri 1 bill ở trạng thái cart: 
                     //Chưa có bill: new Bill()
-                    //Có rồi. Add OrderDetail vào Bill
-                    //_context.Add(orderDetail);
-
+                    //Có rồi. Add OrderDetail vào Bill                 
+                    orderDetail.BillId = bill.Id;
+                    orderDetail.Bill = bill;
+                    _context.OrderDetails.Add(orderDetail);                
                 }
                 ViewData["Toppings"] = await _context.Toppings.ToListAsync();
                 await _context.SaveChangesAsync();
                 return Redirect(Url.Action("Order", "Drinks"));
-
             }
             return View(orderDetail);
         }
@@ -265,14 +266,24 @@ namespace Project.Controllers
             String userName = User.Identity.Name;
             var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
             int userId = user.Id;
+            decimal totalBill = 0;           
             var cart = await _context.Orders
                                 .Include(x => x.OrderDetails)
                                 .ThenInclude(d => d.Drink)
                                 .Include(x => x.OrderDetails)
                                     .ThenInclude(x => x.Toppings)
                                 .FirstOrDefaultAsync(o => o.UserId == userId && o.Status == OrderStatus.Cart);
-            ViewBag.OrderDetails = cart.OrderDetails.ToList();
-            ViewBag.Total = cart.OrderDetails.Sum(x => x.Payment * x.Quantity);
+            if (cart == null)
+            {
+                ViewBag.OrderDetails = new List<OrderDetail>();               
+            }
+            else
+            {
+                ViewBag.OrderDetails = cart.OrderDetails.ToList();           
+                totalBill = cart.OrderDetails.Sum(x => x.Payment * x.Quantity);
+            }
+            string total = totalBill.FormatNumber();
+            ViewBag.Total = total;
             return View();
         }
     }

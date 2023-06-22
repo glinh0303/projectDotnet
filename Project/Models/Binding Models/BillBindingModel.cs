@@ -5,7 +5,6 @@ namespace Project.Models.BindingModels
 {
     public class BillBindingModel
     {
-
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
         public Double Payment { get; set; }
@@ -15,7 +14,8 @@ namespace Project.Models.BindingModels
         [StringLength(maximumLength: 100, MinimumLength = 15)]
         public string Address { get; set; }
         [Required]
-        public int Phone { get; set; }
+        [RegularExpression("[0-9]{10}")]
+        public string Phone { get; set; }
         public string Note { get; set; }
         [ForeignKey(nameof(OrderDetail))]
         public ICollection<OrderDetail> OrderDetails { get; set; }

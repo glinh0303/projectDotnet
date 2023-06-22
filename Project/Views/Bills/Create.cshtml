@@ -1,4 +1,5 @@
-﻿@model Project.Models.BindingModels.BillBindingModel
+﻿@model BillBindingModel
+
 
 @{
     ViewData["Title"] = "Create Bill";
@@ -11,32 +12,18 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @* <div class="form-group">
-            <label asp-for="OrderDet" class="control-label"></label>
-            <input asp-for="OrderDetailId" class="form-control" />
-            <span asp-validation-for="OrderDetailId" class="text-danger"></span>
+            @{
+                var quantity = 0;
+                List<OrderDetail> orderDetails = new List<OrderDetail>();
+            }
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>          
+            <h3>Name: @ViewBag.UserName</h3>
+            <div class="form-group">             
+                <input asp-for="Id" class="form-control" type="hidden" value="@Model.Id"/>
             </div>
             <div class="form-group">
-            <label asp-for="UserId" class="control-label"></label>
-            <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>*@
-            <h3>Name: @ViewBag.UserName</h3>
-            @* <div class="form-group">
-            <label asp-for="CreatedDate" class="control-label"></label>
-            <input asp-for="CreatedDate" class="form-control" />
-            <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>*@
-            @* <div class="form-group">
-            <label asp-for="Payment" class="control-label"></label>
-            <input asp-for="Payment" class="form-control" />
-            <span asp-validation-for="Payment" class="text-danger"></span>
-            </div>*@
-            @* <div class="form-group">
-            <label asp-for="Quantity" class="control-label"></label>
-            <input asp-for="Quantity" class="form-control" />
-            <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>*@
+                <input asp-for="UserId" class="form-control" type="hidden" value="@Model.UserId" />
+            </div>
             <div class="form-group">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
@@ -44,7 +31,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <input asp-for="Phone" class="form-control" type="tel"/>
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -73,23 +60,32 @@
                         @for (var i = 0; i < Model.OrderDetails.Count; ++i)
                         {
                             var detail = Model.OrderDetails.ElementAt(i);
+                             quantity += detail.Quantity;
                             <tr>
                                 <td>@(i + 1)</td>
                                 <td>@(detail.Drink.Name)</td>
                                 <td>@detail.Quantity</td>
                                 <td>@detail.Size.ToString()</td>
+                                <td>@((detail.Payment / detail.Quantity).FormatNumber())</td>
                                 <td>@detail.Payment.FormatNumber()</td>
-                                <td>@((detail.Quantity * detail.Payment).FormatNumber())</td>
                             </tr>
+                            orderDetails.Add(detail);
                         }
                     </tbody>
                 </table>
             </div>
-            <div class="form-group">
+            <div class="form-group">               
                 <h4>Payment: @ViewBag.Total</h4>
+                <input asp-for="Payment" class="form-control" type="hidden" value="@ViewBag.Total" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Order" class="btn btn-primary" />
+            </div>
+            <div class="form-group">
+                <input asp-for="Quantity" class="form-control" type="hidden" value="@quantity" />
+            </div>
+            <div class="form-group">
+                <input asp-for="OrderDetails" class="form-control" type="hidden" value="@orderDetails" />
             </div>
         </form>
     </div>

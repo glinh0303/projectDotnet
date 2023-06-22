@@ -14,7 +14,7 @@ namespace Project.Models
         //[StringLength(maximumLength: 100, MinimumLength = 15)]
         public string Address { get; set; }
         //[Required]
-        public int Phone { get; set; }
+        public string Phone { get; set; }
         public string Note { get; set; }
         [ForeignKey(nameof(OrderDetail))]
         public ICollection<OrderDetail> OrderDetails { get; set; }

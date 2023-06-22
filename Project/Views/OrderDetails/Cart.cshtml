@@ -5,68 +5,66 @@
 }
 
 <h1>Cart</h1>
- <form asp-action="Bill" method="get">
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Drink
-            </th>
-            <th>
-                Quantity
-            </th>
-            <th>
-                Payment
-            </th>
-            <th>
-                Toppings
-            </th>
-            <th>
-                Size
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            List<OrderDetail> orderDetails = ViewBag.OrderDetails;
-        }
-        @foreach (var item in orderDetails)
-        {
+<form asp-action="Bill" method="get">
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Drink.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Payment)
-                </td>
-                <td>
-                    @foreach (var topping in item.Toppings)
-                    {
-                        <p>@topping.Name</p>                      
-                    }
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Size)
-                </td>
-                <td>
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                </td>
+                <th>
+                    Drink
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    Payment
+                </th>
+                <th>
+                    Toppings
+                </th>
+                <th>
+                    Size
+                </th>
+                <th></th>
             </tr>
-        }
-    <td>
-        <h4>Total: @ViewBag.Total</h4>       
-    </td>
+        </thead>
+        <tbody>
+            @{
+                List<OrderDetail> orderDetails = ViewBag.OrderDetails;
+            }
+            @foreach (var item in orderDetails)
+            {
+                string payment = item.Payment.FormatNumber();
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Drink.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @payment
+                    </td>
+                    <td>
+                        @foreach (var topping in item.Toppings)
+                        {
+                            <p>@topping.Name</p>
+                        }
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Size)
+                    </td>
+                    <td>
+                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    </td>
+                </tr>
+            }
+        <td>
+            <h4>Total: @ViewBag.Total</h4>
+        </td>
         <td>
             <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Bills"> Order</button>
-           @* <div class="form-group">
-                <input type="submit" value="Order" class="btn btn-primary" />
-            </div>*@
         </td>
-    </tbody>   
-</table>
+        </tbody>
+    </table>
 </form>
