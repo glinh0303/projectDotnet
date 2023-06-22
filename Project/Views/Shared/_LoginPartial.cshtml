@@ -13,9 +13,9 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a id="avatar" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 <span class="avatar-container">
-                    <img id="output" src="/@(user.Profile?.Avatar??defaultAva)" />
+                    <img id="avatar" src="@user.Profile?.Avatar??defaultAva" />
                 </span>
                 <span id="username">
                     @(user.Profile == null ? user.UserName : user.Profile.FullName)
@@ -40,7 +40,7 @@
 </ul>
 
 <style>
-    #output {
+    #avatar {
         width: 100%;
         height: 100%
     }
@@ -53,7 +53,7 @@
         overflow: hidden
     }
 
-    #avatar {
+    #manage {
         display: flex;
         align-content: center;
         flex-wrap: wrap;

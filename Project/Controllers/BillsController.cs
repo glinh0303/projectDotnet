@@ -7,22 +7,22 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Models;
+using Project.Models.BindingModels;
 
 namespace Project.Controllers
 {
-    public class BillsController : Controller
+    public class BillsController : BaseController
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
 
-        public BillsController(ApplicationDbContext context)
+        public BillsController(ApplicationDbContext context) : base(context)
         {
-            _context = context;
         }
 
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-           /* var applicationDbContext = _context.Orders.Include(o => o.User);*/
+            /* var applicationDbContext = _context.Orders.Include(o => o.User);*/
             /*return View(await applicationDbContext.ToListAsync());*/
             return View();
         }
@@ -36,7 +36,7 @@ namespace Project.Controllers
             }
 
             var order = await _context.Orders
-              /*  .Include(o => o.User)*/
+                /*  .Include(o => o.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
@@ -47,10 +47,36 @@ namespace Project.Controllers
         }
 
         // GET: Orders/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
+            String userName = User.Identity.Name;
+            var profile = CurrentUser?.Profile;
+            ViewBag.UserName = profile?.FirstName == null || profile?.LastName == null ? userName : profile.FullName;
+            int userId = CurrentUser.Id;
+            //var orderDetails = 
+            //    await _context.OrderDetails.Include(d => d.Drink).Include(t => t.Toppings).Where(o => o.UserId == userId && o.OrderStatus == 0).ToListAsync();
+
+            var bill = await _context.Orders.Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Drink)
+                .SingleOrDefaultAsync(or => or.UserId == profile.UserId && or.Status == OrderStatus.Cart);
+            //foreach (var item in orderDetails)
+            //{
+            //    total += item.Payment;
+            //}
+            var total = bill.OrderDetails.Sum(x => x.Payment);
+            ViewBag.Total = total;
+            /*ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");*/
+            var model = new BillBindingModel
+            {
+                Id = bill.Id,
+                Phone = bill.Phone,
+                Payment = bill.Payment,
+                Quantity = bill.Quantity,
+                Address = bill.Address,
+                Note = bill.Note,
+                OrderDetails = bill.OrderDetails,
+            };
+            return View(model);
         }
 
         // POST: Orders/Create
@@ -58,7 +84,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,OrderDetailId,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note,OrderStatus")] Bill order)
+        public async Task<IActionResult> Create([Bind("Id,OrderDetailId,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note")] Bill order)
         {
             if (ModelState.IsValid)
             {
@@ -92,7 +118,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderDetailId,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note,OrderStatus")] Bill order)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderDetailId,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note")] Bill order)
         {
             if (id != order.Id)
             {
@@ -156,14 +182,32 @@ namespace Project.Controllers
             {
                 _context.Orders.Remove(order);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool OrderExists(int id)
         {
-          return _context.Orders.Any(e => e.Id == id);
+            return _context.Orders.Any(e => e.Id == id);
         }
+        /* public async Task<IActionResult> Bill([Bind("Id,UserId,Payment")])
+         {
+             if (ModelState.IsValid)
+             {
+                 List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
+                 foreach (var item in orderDetails)
+                 {
+                     Drink drink = item.Drink;
+                     drink.Quantity -= item.Quantity;
+                     await TryUpdateModelAsync(drink);
+                 }
+
+                 _context.Add(cart);
+                 await _context.SaveChangesAsync();
+                 return Redirect(Url.Action("Index", "Order"));
+             }
+             return View(cart);
+         }*/
     }
 }

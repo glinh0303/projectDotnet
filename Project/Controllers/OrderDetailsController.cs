@@ -13,20 +13,17 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Project.Controllers
 {
-    public class OrderDetailsController : Controller
+    public class OrderDetailsController : BaseController
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
 
-        public OrderDetailsController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public OrderDetailsController(ApplicationDbContext context) : base(context) { }
 
         // GET: OrderDetails
         public async Task<IActionResult> Index(int? toppingId)
-         {
+        {
             IQueryable<OrderDetail> orderDetailsQuery = _context.OrderDetails.Include(o => o.Toppings)
-                                                                             .Include(o => o.Drink);                                                                        
+                                                                             .Include(o => o.Drink);
             if (toppingId != null)
             {
                 orderDetailsQuery = orderDetailsQuery.Where(o => o.Toppings.Any(t => t.Id == toppingId));
@@ -77,8 +74,8 @@ namespace Project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-/*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
-*/     
+            /*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
+            */
             return View(orderDetail);
         }
 
@@ -96,7 +93,7 @@ namespace Project.Controllers
             {
                 return NotFound();
             }
-         
+
             return View(orderDetail);
         }
 
@@ -132,8 +129,8 @@ namespace Project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-/*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
-*/           
+            /*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
+            */
             return View(orderDetail);
         }
 
@@ -184,8 +181,8 @@ namespace Project.Controllers
         {
             var drink = await _context.Drinks.FindAsync(id);
             ViewBag.Drink = drink.Name;
-            ViewBag.Price = drink.Price;  
-            ViewBag.Quantity = drink.Quantity;          
+            ViewBag.Price = drink.Price;
+            ViewBag.Quantity = drink.Quantity;
             ViewData["Toppings"] = await _context.Toppings.ToListAsync();
             return View();
         }
@@ -211,18 +208,36 @@ namespace Project.Controllers
                     payment = DoToppings(toppings, payment);
                 }
                 int quantity = orderDetail.Quantity;
-                orderDetail.Payment = (payment * quantity);
-                orderDetail.UserId = userId;
-                orderDetail.OrderStatus = 0;
-                _context.Add(orderDetail);               
-                await _context.SaveChangesAsync();             
+                //orderDetail.Payment = (payment * quantity);
+                //orderDetail.UserId = userId;
+                //orderDetail.OrderStatus = 0;
+
+                var bill = await _context.Orders.SingleOrDefaultAsync(order => order.UserId == CurrentUser.Id && order.Status == OrderStatus.Cart);
+                if (bill != null)
+                {
+                    //bill.OrderDetails.Add(orderDetail);
+                    orderDetail.BillId = bill.Id;
+                    _context.OrderDetails.Add(orderDetail);
+                    //_context.Add(bill);
+                }
+                else
+                {
+                    bill = new Bill() { OrderDetails = new List<OrderDetail>() { orderDetail },
+                        UserId = CurrentUser.Id, Status = OrderStatus.Cart };
+                    _context.Orders.Add(bill);
+                    //Luôn duy tri 1 bill ở trạng thái cart: 
+                    //Chưa có bill: new Bill()
+                    //Có rồi. Add OrderDetail vào Bill
+                    //_context.Add(orderDetail);
+
+                }
+                ViewData["Toppings"] = await _context.Toppings.ToListAsync();
+                await _context.SaveChangesAsync();
                 return Redirect(Url.Action("Order", "Drinks"));
-      
+
             }
-            ViewData["Toppings"] = await _context.Toppings.ToListAsync();
             return View(orderDetail);
         }
-
         private decimal DoSize(OrderDetail orderDetail)
         {
             decimal price = orderDetail.Drink.Price;
@@ -250,34 +265,15 @@ namespace Project.Controllers
             String userName = User.Identity.Name;
             var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
             int userId = user.Id;
-            var orderDetails = await _context.OrderDetails.Include(d => d.Drink).Include(t => t.Toppings).Where(o => o.UserId == userId && o.OrderStatus == 0).ToListAsync();
-            ViewBag.OrderDetails = orderDetails;
-            decimal total = 0;
-            foreach (var item in orderDetails)
-            {
-                total += item.Payment;
-            }
-            ViewBag.Total = total;
+            var cart = await _context.Orders
+                                .Include(x => x.OrderDetails)
+                                .ThenInclude(d => d.Drink)
+                                .Include(x => x.OrderDetails)
+                                    .ThenInclude(x => x.Toppings)
+                                .FirstOrDefaultAsync(o => o.UserId == userId && o.Status == OrderStatus.Cart);
+            ViewBag.OrderDetails = cart.OrderDetails.ToList();
+            ViewBag.Total = cart.OrderDetails.Sum(x => x.Payment * x.Quantity);
             return View();
         }
-
-     /*   public async Task<IActionResult> Bill([Bind("Id,UserId,Payment")] Cart cart)
-        {
-            if (ModelState.IsValid)
-            {
-                List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
-                foreach (var item in orderDetails)
-                {
-                    Drink drink = item.Drink;
-                    drink.Quantity -= item.Quantity;
-                    await TryUpdateModelAsync(drink);
-                }
-
-                _context.Add(cart);
-                await _context.SaveChangesAsync();
-                return Redirect(Url.Action("Index", "Order"));
-            }
-            return View(cart);
-        }*/
     }
 }

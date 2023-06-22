@@ -1,41 +1,42 @@
-﻿@*@model Project.Models.Bill
+﻿@model Project.Models.BindingModels.BillBindingModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Bill";
 }
 
-<h1>Create</h1>
+@*<h1>Create</h1>*@
 
-<h4>Order</h4>
+<h4>Bill</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="OrderDetailId" class="control-label"></label>
-                <input asp-for="OrderDetailId" class="form-control" />
-                <span asp-validation-for="OrderDetailId" class="text-danger"></span>
+            @* <div class="form-group">
+            <label asp-for="OrderDet" class="control-label"></label>
+            <input asp-for="OrderDetailId" class="form-control" />
+            <span asp-validation-for="OrderDetailId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedDate" class="control-label"></label>
-                <input asp-for="CreatedDate" class="form-control" />
-                <span asp-validation-for="CreatedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Payment" class="control-label"></label>
-                <input asp-for="Payment" class="form-control" />
-                <span asp-validation-for="Payment" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
+            <label asp-for="UserId" class="control-label"></label>
+            <select asp-for="UserId" class ="form-control" asp-items="ViewBag.UserId"></select>
+            </div>*@
+            <h3>Name: @ViewBag.UserName</h3>
+            @* <div class="form-group">
+            <label asp-for="CreatedDate" class="control-label"></label>
+            <input asp-for="CreatedDate" class="form-control" />
+            <span asp-validation-for="CreatedDate" class="text-danger"></span>
+            </div>*@
+            @* <div class="form-group">
+            <label asp-for="Payment" class="control-label"></label>
+            <input asp-for="Payment" class="form-control" />
+            <span asp-validation-for="Payment" class="text-danger"></span>
+            </div>*@
+            @* <div class="form-group">
+            <label asp-for="Quantity" class="control-label"></label>
+            <input asp-for="Quantity" class="form-control" />
+            <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>*@
             <div class="form-group">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
@@ -51,13 +52,44 @@
                 <input asp-for="Note" class="form-control" />
                 <span asp-validation-for="Note" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="OrderStatus" class="control-label"></label>
-                <input asp-for="OrderStatus" class="form-control" />
-                <span asp-validation-for="OrderStatus" class="text-danger"></span>
+            <div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                                #
+                            </th>
+                            <th>
+                                Drink
+                            </th>
+                            <th>Quantity</th>
+                            <th>Toppings</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Payment</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var i = 0; i < Model.OrderDetails.Count; ++i)
+                        {
+                            var detail = Model.OrderDetails.ElementAt(i);
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@(detail.Drink.Name)</td>
+                                <td>@detail.Quantity</td>
+                                <td>@detail.Size.ToString()</td>
+                                <td>@detail.Payment.FormatNumber()</td>
+                                <td>@((detail.Quantity * detail.Payment).FormatNumber())</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <h4>Payment: @ViewBag.Total</h4>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Order" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -68,6 +100,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
-*@
