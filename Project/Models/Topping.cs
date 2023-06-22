@@ -17,5 +17,7 @@ namespace Project.Models
         [Column(TypeName = "decimal(18, 3)")]
         [Range(0, (double)decimal.MaxValue)]
         public decimal Price { get; set; }
+
+        public ICollection<OrderDetail> OrderDetails { get; set; }
     }
 }

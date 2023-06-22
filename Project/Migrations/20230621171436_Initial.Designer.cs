@@ -12,7 +12,7 @@ using Project.Data;
 namespace Project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230621043306_Initial")]
+    [Migration("20230621171436_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,7 +229,7 @@ namespace Project.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Project.Models.Cart", b =>
+            modelBuilder.Entity("Project.Models.Bill", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -237,20 +237,32 @@ namespace Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("OrderDetailId")
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Payment")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Phone")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Payment")
-                        .HasColumnType("decimal(18,3)");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderDetailId");
-
-                    b.ToTable("Cart");
+                    b.ToTable("Order", (string)null);
                 });
 
             modelBuilder.Entity("Project.Models.Category", b =>
@@ -299,48 +311,6 @@ namespace Project.Migrations
                     b.ToTable("Drink", (string)null);
                 });
 
-            modelBuilder.Entity("Project.Models.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OrderDetailId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Payment")
-                        .HasColumnType("float");
-
-                    b.Property<int>("Phone")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Order", (string)null);
-                });
-
             modelBuilder.Entity("Project.Models.OrderDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -349,17 +319,17 @@ namespace Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int?>("CartId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DrinkId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrderId")
+                    b.Property<int?>("OrderDetail")
                         .HasColumnType("int");
 
-                    b.Property<double>("Payment")
-                        .HasColumnType("float");
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Payment")
+                        .HasColumnType("decimal(18,3)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -372,11 +342,9 @@ namespace Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CartId");
-
                     b.HasIndex("DrinkId");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("OrderDetail");
 
                     b.ToTable("OrderDetail", (string)null);
                 });
@@ -510,15 +478,6 @@ namespace Project.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Project.Models.Cart", b =>
-                {
-                    b.HasOne("Project.Models.OrderDetail", "OrderDetail")
-                        .WithMany()
-                        .HasForeignKey("OrderDetailId");
-
-                    b.Navigation("OrderDetail");
-                });
-
             modelBuilder.Entity("Project.Models.Drink", b =>
                 {
                     b.HasOne("Project.Models.Category", "Category")
@@ -532,17 +491,13 @@ namespace Project.Migrations
 
             modelBuilder.Entity("Project.Models.OrderDetail", b =>
                 {
-                    b.HasOne("Project.Models.Cart", null)
-                        .WithMany("OrderDetails")
-                        .HasForeignKey("CartId");
-
                     b.HasOne("Project.Models.Drink", "Drink")
                         .WithMany()
                         .HasForeignKey("DrinkId");
 
-                    b.HasOne("Project.Models.Order", null)
+                    b.HasOne("Project.Models.Bill", null)
                         .WithMany("OrderDetails")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderDetail");
 
                     b.Navigation("Drink");
                 });
@@ -581,7 +536,7 @@ namespace Project.Migrations
                     b.Navigation("Profile");
                 });
 
-            modelBuilder.Entity("Project.Models.Cart", b =>
+            modelBuilder.Entity("Project.Models.Bill", b =>
                 {
                     b.Navigation("OrderDetails");
                 });
@@ -589,11 +544,6 @@ namespace Project.Migrations
             modelBuilder.Entity("Project.Models.Category", b =>
                 {
                     b.Navigation("Drinks");
-                });
-
-            modelBuilder.Entity("Project.Models.Order", b =>
-                {
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("Project.Models.OrderDetail", b =>

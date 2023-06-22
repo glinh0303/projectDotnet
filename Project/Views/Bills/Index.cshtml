@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Project.Models.Order>
+﻿@model IEnumerable<Project.Models.Bill>
 
 @{
     ViewData["Title"] = "Order";
@@ -13,7 +13,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.OrderDetailId)
+           @*     @Html.DisplayNameFor(model => model.OrderDetailId)*@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.CreatedDate)
@@ -34,7 +34,7 @@
                 @Html.DisplayNameFor(model => model.Note)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.OrderStatus)
+             @*   @Html.DisplayNameFor(model => model.OrderStatus)*@
             </th>
             <th>
               @*  @Html.DisplayNameFor(model => model.User)*@
@@ -46,7 +46,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.OrderDetailId)
+               @* @Html.DisplayFor(modelItem => item.OrderDetailId)*@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreatedDate)
@@ -67,7 +67,7 @@
                 @Html.DisplayFor(modelItem => item.Note)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.OrderStatus)
+             @*   @Html.DisplayFor(modelItem => item.OrderStatus)*@
             </td>
             <td>
                @* @Html.DisplayFor(modelItem => item.User.Id)*@

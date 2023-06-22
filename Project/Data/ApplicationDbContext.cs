@@ -14,7 +14,7 @@ namespace Project.Data
         }
        /* public DbSet<User> Users { get; set; }*/
         public DbSet<Drink> Drinks { get; set; }
-        public DbSet<Order> Orders { get; set; }
+        public DbSet<Bill> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Topping> Toppings { get; set; }
@@ -23,7 +23,7 @@ namespace Project.Data
         {
             base.OnModelCreating(builder);
            /* builder.Entity<User>().ToTable("User");*/
-            builder.Entity<Order>().ToTable("Order");
+            builder.Entity<Bill>().ToTable("Order");
             builder.Entity<OrderDetail>().ToTable("OrderDetail");
             builder.Entity<Drink>().ToTable("Drink");
             builder.Entity<Topping>().ToTable("Topping");
@@ -33,6 +33,6 @@ namespace Project.Data
                .HasKey(o => new { o.DrinkId, o.DrinkSize });
         }
 
-        public DbSet<Project.Models.Cart> Cart { get; set; }
+       /* public DbSet<Project.Models.Cart> Cart { get; set; }*/
     }
 }

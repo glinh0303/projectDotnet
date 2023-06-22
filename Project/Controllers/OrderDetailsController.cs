@@ -172,7 +172,7 @@ namespace Project.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Cart));
         }
 
         private bool OrderDetailExists(int id)
@@ -209,16 +209,13 @@ namespace Project.Controllers
                     orderDetail.Toppings = _context.Toppings.Where(x => selectedToppings.Contains(x.Id)).ToList();
                     List<Topping> toppings = (List<Topping>)orderDetail.Toppings;
                     payment = DoToppings(toppings, payment);
-
                 }
                 int quantity = orderDetail.Quantity;
                 orderDetail.Payment = (payment * quantity);
-                /*  drink.Quantity -= quantity;  */
-
                 orderDetail.UserId = userId;
-                _context.Add(orderDetail);
-                await _context.SaveChangesAsync();
-               /* await TryUpdateModelAsync(drink);*/
+                orderDetail.OrderStatus = 0;
+                _context.Add(orderDetail);               
+                await _context.SaveChangesAsync();             
                 return Redirect(Url.Action("Order", "Drinks"));
       
             }
@@ -248,5 +245,39 @@ namespace Project.Controllers
             }
             return payment;
         }
+        public async Task<IActionResult> Cart()
+        {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            int userId = user.Id;
+            var orderDetails = await _context.OrderDetails.Include(d => d.Drink).Include(t => t.Toppings).Where(o => o.UserId == userId && o.OrderStatus == 0).ToListAsync();
+            ViewBag.OrderDetails = orderDetails;
+            decimal total = 0;
+            foreach (var item in orderDetails)
+            {
+                total += item.Payment;
+            }
+            ViewBag.Total = total;
+            return View();
+        }
+
+     /*   public async Task<IActionResult> Bill([Bind("Id,UserId,Payment")] Cart cart)
+        {
+            if (ModelState.IsValid)
+            {
+                List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
+                foreach (var item in orderDetails)
+                {
+                    Drink drink = item.Drink;
+                    drink.Quantity -= item.Quantity;
+                    await TryUpdateModelAsync(drink);
+                }
+
+                _context.Add(cart);
+                await _context.SaveChangesAsync();
+                return Redirect(Url.Action("Index", "Order"));
+            }
+            return View(cart);
+        }*/
     }
 }

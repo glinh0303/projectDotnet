@@ -75,8 +75,6 @@ namespace Project.Migrations
                     Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Phone = table.Column<int>(type: "int", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderStatus = table.Column<int>(type: "int", nullable: false),
-                    OrderDetailId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -238,6 +236,35 @@ namespace Project.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OrderDetail",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Payment = table.Column<decimal>(type: "decimal(18,3)", nullable: false),
+                    DrinkId = table.Column<int>(type: "int", nullable: true),
+                    Size = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    OrderStatus = table.Column<int>(type: "int", nullable: false),
+                    OrderDetail = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderDetail", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderDetail_Drink_DrinkId",
+                        column: x => x.DrinkId,
+                        principalTable: "Drink",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_OrderDetail_Order_OrderDetail",
+                        column: x => x.OrderDetail,
+                        principalTable: "Order",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Size",
                 columns: table => new
                 {
@@ -253,55 +280,6 @@ namespace Project.Migrations
                         principalTable: "Drink",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Cart",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: true),
-                    OrderDetailId = table.Column<int>(type: "int", nullable: true),
-                    Payment = table.Column<decimal>(type: "decimal(18,3)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cart", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderDetail",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Payment = table.Column<double>(type: "float", nullable: false),
-                    DrinkId = table.Column<int>(type: "int", nullable: true),
-                    Size = table.Column<int>(type: "int", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    CartId = table.Column<int>(type: "int", nullable: true),
-                    OrderId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderDetail", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Cart_CartId",
-                        column: x => x.CartId,
-                        principalTable: "Cart",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Drink_DrinkId",
-                        column: x => x.DrinkId,
-                        principalTable: "Drink",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -365,19 +343,9 @@ namespace Project.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cart_OrderDetailId",
-                table: "Cart",
-                column: "OrderDetailId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Drink_CategoryId",
                 table: "Drink",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderDetail_CartId",
-                table: "OrderDetail",
-                column: "CartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_DrinkId",
@@ -385,29 +353,18 @@ namespace Project.Migrations
                 column: "DrinkId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderDetail_OrderId",
+                name: "IX_OrderDetail_OrderDetail",
                 table: "OrderDetail",
-                column: "OrderId");
+                column: "OrderDetail");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Topping_OrderDetailId",
                 table: "Topping",
                 column: "OrderDetailId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Cart_OrderDetail_OrderDetailId",
-                table: "Cart",
-                column: "OrderDetailId",
-                principalTable: "OrderDetail",
-                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Cart_OrderDetail_OrderDetailId",
-                table: "Cart");
-
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -440,9 +397,6 @@ namespace Project.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");
-
-            migrationBuilder.DropTable(
-                name: "Cart");
 
             migrationBuilder.DropTable(
                 name: "Drink");

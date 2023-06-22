@@ -5,25 +5,68 @@
 @inject UserManager<AppUser> UserManager
 @inject Project.Data.ApplicationDbContext Context
 
+@{
+    var defaultAva = "/profile/avatar/default.jpg";
+    var user = await Context.Users.Include(u => u.Profile).SingleOrDefaultAsync(u => u.UserName == User.Identity.Name);
+}
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
-    </li>
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a id="avatar" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                <span class="avatar-container">
+                    <img id="output" src="/@(user.Profile?.Avatar??defaultAva)" />
+                </span>
+                <span id="username">
+                    @(user.Profile == null ? user.UserName : user.Profile.FullName)
+                </span>
+            </a>
+        </li>
         <li class="nav-item">
             <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                 <button type="submit" class="nav-link btn btn-link text-dark">Logout</button>
             </form>
         </li>
-}
-else
-{
+    }
+    else
+    {
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register" id="register">Register</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login" id="login">Login</a>
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
         </li>
-}
+    }
 </ul>
+
+<style>
+    #output {
+        width: 100%;
+        height: 100%
+    }
+
+    .avatar-container {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: block;
+        overflow: hidden
+    }
+
+    #avatar {
+        display: flex;
+        align-content: center;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #username {
+        display: inline-block
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center
+    }
+</style>

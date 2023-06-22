@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Project.Models
 {
-    public class Order
+    public class Bill
     {
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -16,12 +16,8 @@ namespace Project.Models
         [Required]
         public int Phone { get; set; }
         public string Note { get; set; }
-        public int OrderStatus { get; set; } = 0;
         [ForeignKey(nameof(OrderDetail))]
-        public int OrderDetailId { get; set; }
         public ICollection<OrderDetail> OrderDetails { get; set; }
-        [ForeignKey(nameof(UserId))]
         public int UserId { get; set; }
-        /*public User User { get; set; }*/
     }
 }

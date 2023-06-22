@@ -1,22 +1,21 @@
-﻿@model Project.Models.Order
+﻿@model Project.Models.Bill
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Details";
 }
 
-<h1>Delete</h1>
+<h1>Details</h1>
 
-<h3>Are you sure you want to delete this?</h3>
 <div>
     <h4>Order</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderDetailId)
+          @*  @Html.DisplayNameFor(model => model.OrderDetailId)*@
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderDetailId)
-        </dd>
+@*            @Html.DisplayFor(model => model.OrderDetailId)
+*@        </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.CreatedDate)
         </dt>
@@ -54,22 +53,20 @@
             @Html.DisplayFor(model => model.Note)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderStatus)
+          @*  @Html.DisplayNameFor(model => model.OrderStatus)*@
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderStatus)
-        </dd>
+@*            @Html.DisplayFor(model => model.OrderStatus)
+*@        </dd>
         <dt class = "col-sm-2">
            @* @Html.DisplayNameFor(model => model.User)*@
         </dt>
         <dd class = "col-sm-10">
-          @*  @Html.DisplayFor(model => model.User.Id)*@
+           @* @Html.DisplayFor(model => model.User.Id)*@
         </dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
 </div>
