@@ -1,0 +1,23 @@
+﻿@using Microsoft.EntityFrameworkCore;
+@using Project.Models;
+@inject Project.Data.ApplicationDbContext _context
+@{
+    List<Category> categories = await _context.Categories.ToListAsync();
+}
+@*@inject IGenreService GenreService*@
+
+<div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+        Categories
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+        @{
+          
+            for (int i = 0; i < categories.Count; i++)
+            {
+                <li><a class="dropdown-item" type="button" asp-area="" asp-controller="Drinks" asp-action="Index" asp-route-categoriesid="@categories[i].Id">@categories[i].Name</a></li>
+            }
+        }
+
+    </ul>
+</div>

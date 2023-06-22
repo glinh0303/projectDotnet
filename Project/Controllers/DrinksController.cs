@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Models;
+
 
 namespace Project.Controllers
 {
@@ -20,12 +17,12 @@ namespace Project.Controllers
         }
 
         // GET: Drinks
-        public async Task<IActionResult> Index(string sortOrder, string currentFilter,string searchString,int? pageNumber)
+        public async Task<IActionResult> Index(int? categoriesid, string sortOrder, string currentFilter,string searchString,int? pageNumber)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
-
+           
             if (searchString != null)
             {
                 pageNumber = 1;
@@ -45,6 +42,11 @@ namespace Project.Controllers
                 drinks = drinks.Where(d => d.Category.Name.Contains(searchString)
                                        || d.Name.Contains(searchString));
             }
+            if (categoriesid != null)
+            {
+                drinks = drinks.Where(drink => drink.CategoryId == categoriesid);
+            }
+           
             switch (sortOrder)
             {
                 case "name_desc":
