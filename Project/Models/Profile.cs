@@ -38,6 +38,8 @@ namespace Project.Models
         [RegularExpression("[0-9]{10}")]
         public string Phone { get; set; }
         public Nationality Nationality { get; set; }
+        public int RankId { get; set; }
+        public double totalPayment { get; set; }
     }
 }
 

@@ -32,6 +32,7 @@ namespace Project.Controllers
             String userName = User.Identity.Name;
             var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
             profile.UserId = user.Id;
+            profile.RankId = 1;
             var existingProfile = user.Profile;
             if (ModelState.IsValid)
             {
