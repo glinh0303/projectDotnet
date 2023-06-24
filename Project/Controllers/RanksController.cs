@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +22,14 @@ namespace Project.Controllers
         }
 
         // GET: Ranks
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index()
         {
               return View(await _context.Ranks.ToListAsync());
         }
 
         // GET: Ranks/Details/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Ranks == null)
@@ -44,6 +48,7 @@ namespace Project.Controllers
         }
 
         // GET: Ranks/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             return View();
@@ -54,6 +59,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Id,Name,DiscountRate,totalMoney")] Rank rank)
         {
             if (ModelState.IsValid)
@@ -66,6 +72,7 @@ namespace Project.Controllers
         }
 
         // GET: Ranks/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Ranks == null)
@@ -86,6 +93,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DiscountRate,totalMoney")] Rank rank)
         {
             if (id != rank.Id)
@@ -117,6 +125,7 @@ namespace Project.Controllers
         }
 
         // GET: Ranks/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Ranks == null)
@@ -137,6 +146,7 @@ namespace Project.Controllers
         // POST: Ranks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Ranks == null)

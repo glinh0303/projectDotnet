@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Project
 {
-    public class SeedData
+    public static class SeedData
     {
         public static async Task SeedRole(RoleManager<IdentityRole<int>> roleManager)
         {

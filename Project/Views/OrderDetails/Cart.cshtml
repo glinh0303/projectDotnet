@@ -60,10 +60,22 @@
                 </tr>
             }
         <td>
-            <h4>Total: @ViewBag.Total</h4>
+                @{
+                    decimal totalBill = @ViewBag.Total;
+                    string total = totalBill.FormatNumber();
+            }
+            <h4>Total: @total</h4>
         </td>
         <td>
-            <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Bills"> Order</button>
+                @{                  
+                    if (totalBill <= 0)
+                    {
+                    <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Bills" hidden> Order</button>
+                    }
+                    else{
+                    <button type="submit" class="btn btn-primary" asp-action="Create" asp-controller="Bills"> Order</button>
+                }
+            }
         </td>
         </tbody>
     </table>

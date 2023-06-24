@@ -2,6 +2,19 @@
 
 @{
     ViewData["Title"] = "Edit";
+    decimal priceM = ViewBag.Price + 5000;
+    decimal priceL = ViewBag.Price + 10000;
+    decimal prieS = ViewBag.Price - ViewBag.Price;
+    var s = prieS.FormatNumber();
+    var m = priceM.FormatNumber();
+    var l = priceL.FormatNumber();
+    var selectItems = new[]
+    {
+        new {Text="S - " + s, Value=DrinkSize.S},
+        new { Text = "M - " + m, Value = DrinkSize.M },
+        new { Text = "L - " + l, Value = DrinkSize.L }
+    };
+    var selectSize = new SelectList(selectItems, "Value", "Text");
 }
 
 <h1>Edit</h1>
@@ -12,28 +25,158 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />           
             <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
+                <h1>@ViewBag.Drink</h1>
+            </div>
+            <div class="form-group" id="button-form">
+                <div class="value-button" id="decrease" onclick="decreaseValue()" value="Decrease Value">-</div>
+                <input class="quantity" min="1" name="quantity" value="@Model.Quantity" type="number" id="number" max="@ViewBag.Quantity">
+                <div class="value-button" id="increase" onclick="increaseValue()" value="Increase Value">+</div>
             </div>
             <div class="form-group">
-                <label asp-for="Payment" class="control-label"></label>
-                <input asp-for="Payment" class="form-control" />
-                <span asp-validation-for="Payment" class="text-danger"></span>
+                <label asp-for="Toppings" class="control-label"></label>
+                <div>
+                    @{
+                        List<Topping> toppings = ViewBag.Toppings;
+                    }
+                    @foreach (var topping in toppings)
+                    {
+                        <div class="form-check form-check-inline" id="topping">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" onchange="updateTotal()" value="@topping.Id" name="selectedToppings" data-price="@topping.Price" @Html.Raw(Model.Toppings.Any(x => x.Id == topping.Id)?"checked=\"checked\"":"") />
+                            <label class="form-check-label" for="inlineCheckbox1">
+                                <p>@topping.Name: @topping.Price.FormatNumber()</p>
+                            </label>
+                        </div>
+                    }
+                </div>
             </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <label asp-for="Size" class="control-label"></label>
+                <select asp-for="Size" class="form-control" asp-items="selectSize" onchange="updateTotal()"></select>
+                <br />
+                <div>
+                    <h5>Total: <span id="total">@ViewBag.Payment</span> </h5>
+                </div>
+                <div class="form-group">
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
+
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
+<style>
+    .value-button {
+        display: inline-block;
+        border: 1px solid #ddd;
+        margin-bottom: 5.5px;
+        width: 40px;
+        height: 40px;
+        text-align: center;
+        vertical-align: middle;
+        padding: 5px 5px 5px 5px;
+        background: #eee;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        .value-button:hover {
+            cursor: pointer;
+        }
+
+    form #decrease {
+        margin-right: -4px;
+        border-radius: 8px 0 0 8px;
+    }
+
+    form #increase {
+        margin-left: -4px;
+        border-radius: 0 8px 8px 0;
+    }
+
+    form #input-wrap {
+        margin: 0px;
+        padding: 0px;
+    }
+
+    input#number {
+        text-align: center;
+        border: none;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        margin: 0px;
+        width: 40px;
+        height: 40px;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        function increaseValue() {
+            var value = parseInt(document.getElementById('number').value, 10);
+            value = isNaN(value) ? 0 : value;
+            if (value >= @ViewBag.Quantity) {
+                document.getElementById("decrease").disabled = true;
+            } else {
+                value++;
+                document.getElementById('number').value = value;
+                updateTotal();
+            }
+        }
+
+        function decreaseValue() {
+            var value = parseInt(document.getElementById('number').value, 10);
+            value = isNaN(value) ? 0 : value;
+            value < 1 ? value = 1 : '';
+            value--;
+            document.getElementById('number').value = value;
+            updateTotal();
+        }
+        function updateTotal() {
+            var checkboxes = document.getElementsByName('selectedToppings');
+            quantity = document.getElementById('number').value;
+            var size = document.getElementById('Size').value;
+            var price;
+            if (size === "S") {
+                price = 0;
+            } else if (size === "M") {
+                price = 5000;
+            } else if (size === "L") {
+                price = 10000;
+            } else {
+                price = 0;
+            }
+            PriceTopp = 0
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    var toppingPrice = parseFloat(checkboxes[i].getAttribute('data-price'));
+                    PriceTopp += toppingPrice;
+                }
+            }
+            var total = quantity * (@ViewBag.Price+price + PriceTopp);
+            document.getElementById('total').textContent = total.toLocaleString();
+        }
+    </script>
 }
+

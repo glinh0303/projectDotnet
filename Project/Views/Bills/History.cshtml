@@ -37,9 +37,11 @@
     <tbody>
         @{
             var i = 0;
+            decimal total = 0;
         }
         @foreach (var item in Model)
         {
+            total += item.Payment;
             i++;
             <tr>
                 <td>
@@ -52,7 +54,11 @@
                     @Html.DisplayFor(modelItem => item.CreatedDate)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Payment)
+                    @{
+                        decimal payment = item.Payment;
+                        var pay = payment.FormatNumber();
+                    }
+                    @pay
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Quantity)
@@ -67,11 +73,15 @@
                     @Html.DisplayFor(modelItem => item.Note)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    @*<a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |*@
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
+                    @*<a asp-action="Delete" asp-route-id="@item.Id">Delete</a>*@
                 </td>
             </tr>
         }
     </tbody>
 </table>
+@{
+    var totalBills = total.FormatNumber();
+}
+<h3 style="color:darkslateblue; text-align: right">ToTal: @totalBills</h3>

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
+using Project.Migrations;
 using Project.Models;
 using Project.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -20,6 +21,7 @@ namespace Project.Controllers
         public OrderDetailsController(ApplicationDbContext context) : base(context) { }
 
         // GET: OrderDetails
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Index(int? toppingId)
         {
             IQueryable<OrderDetail> orderDetailsQuery = _context.OrderDetails.Include(o => o.Toppings)
@@ -33,6 +35,7 @@ namespace Project.Controllers
         }
 
         // GET: OrderDetails/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.OrderDetails == null)
@@ -52,6 +55,7 @@ namespace Project.Controllers
         }
 
         // GET: OrderDetails/Create
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             ViewData["Toppings"] = await _context.Toppings.ToListAsync();
@@ -66,6 +70,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create([Bind("Id,Quantity,Payment,Drink")] OrderDetail orderDetail)
         {
             if (ModelState.IsValid)
@@ -80,20 +85,30 @@ namespace Project.Controllers
         }
 
         // GET: OrderDetails/Edit/5
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.OrderDetails == null)
             {
                 return NotFound();
-            }
-
-            var orderDetail = await _context.OrderDetails.Include(o => o.Toppings).FirstOrDefaultAsync(o => o.Id == id);
+            }         
+            var orderDetail = await _context.OrderDetails
+                                .Include(x => x.Drink)                              
+                                .Include(x => x.Toppings)
+                                .FirstOrDefaultAsync(o => o.Id == id);                                   
+           /* var orderDetail = await _context.OrderDetails.Include(o => o.Toppings).FirstOrDefaultAsync(o => o.Id == id);*/
             ViewData["Toppings"] = await _context.Toppings.ToListAsync();
             if (orderDetail == null)
             {
                 return NotFound();
             }
-
+            var drink = await _context.Drinks.FindAsync(orderDetail.Drink.Id);
+            ViewBag.Drink = drink.Name;
+            ViewBag.Price = drink.Price;
+            ViewBag.Quantity = drink.Quantity;
+            decimal payment = orderDetail.Payment;
+            var p = payment.FormatNumber();
+            ViewBag.Payment = p;
             return View(orderDetail);
         }
 
@@ -102,18 +117,34 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderId,DrinkId,Quantity,Payment")] OrderDetail orderDetail)
+        [Authorize]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Quantity,Payment,Drink,Size,UserId")] OrderDetail orderDetail, int[] selectedToppings)
         {
             if (id != orderDetail.Id)
             {
                 return NotFound();
             }
+            var orderDetailToUpdate = await _context.OrderDetails
+                                .Include(x => x.Drink)
+                                .Include(x => x.Toppings).FirstOrDefaultAsync(m => m.Id == id);         
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<OrderDetail>(orderDetailToUpdate, "",m => m.Quantity, m => m.Size))
+                if (ModelState.IsValid)
             {
-                try
+                    await UpdateToppings(orderDetail, orderDetailToUpdate, selectedToppings);
+                    var payment = DoSize(orderDetailToUpdate);
+                    if (selectedToppings != null)
+                    {
+                        orderDetailToUpdate.Toppings = _context.Toppings.Where(x => selectedToppings.Contains(x.Id)).ToList();
+                        List<Topping> toppings = (List<Topping>)orderDetailToUpdate.Toppings;
+                        payment = DoToppings(toppings, payment);
+                    }
+                    int quantity = orderDetailToUpdate.Quantity;
+                    orderDetailToUpdate.Payment = (payment * quantity);
+                    /* UpdateMembers(movie, movieToUpdate);*/
+                    try
                 {
-                    _context.Update(orderDetail);
+                    _context.Update(orderDetailToUpdate);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -127,14 +158,35 @@ namespace Project.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Cart));
             }
-            /*            ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name", orderDetail.DrinkId);
-            */
             return View(orderDetail);
         }
 
+        private async Task UpdateToppings(OrderDetail orderDetail, OrderDetail orderToUpdate, int[] selectedToppings)
+        {
+            var toppings = await _context.Toppings.ToArrayAsync();
+            //Mot topping cu bi xoa di
+            foreach (var topping in orderToUpdate.Toppings)
+            {
+                if (!selectedToppings.Any(x => x == topping.Id))
+                {
+                    orderToUpdate.Toppings.Remove(topping);
+                }
+            }
+
+            //Mot topping moi dc them vao
+            foreach (var toppingId in selectedToppings)
+            {
+                if (!orderToUpdate.Toppings.Any(x => x.Id == toppingId))
+                {
+                    orderToUpdate.Toppings.Add(toppings.FirstOrDefault(x => x.Id == toppingId));
+                }
+            }
+        }
+
         // GET: OrderDetails/Delete/5
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.OrderDetails == null)
@@ -143,8 +195,8 @@ namespace Project.Controllers
             }
 
             var orderDetail = await _context.OrderDetails
-                .Include(o => o.Drink)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                 .Include(x => x.Drink)
+                                 .Include(x => x.Toppings).FirstOrDefaultAsync(m => m.Id == id);
             if (orderDetail == null)
             {
                 return NotFound();
@@ -156,6 +208,7 @@ namespace Project.Controllers
         // POST: OrderDetails/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.OrderDetails == null)
@@ -261,6 +314,7 @@ namespace Project.Controllers
             }
             return payment;
         }
+        [Authorize(Roles = "user")]
         public async Task<IActionResult> Cart()
         {
             String userName = User.Identity.Name;
@@ -280,10 +334,9 @@ namespace Project.Controllers
             else
             {
                 ViewBag.OrderDetails = cart.OrderDetails.ToList();           
-                totalBill = cart.OrderDetails.Sum(x => x.Payment * x.Quantity);
-            }
-            string total = totalBill.FormatNumber();
-            ViewBag.Total = total;
+                totalBill = cart.OrderDetails.Sum(x => x.Payment);
+            }          
+            ViewBag.Total = totalBill;
             return View();
         }
     }

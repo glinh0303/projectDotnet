@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Models;
+using System.Data;
 
 
 namespace Project.Controllers
@@ -68,6 +70,7 @@ namespace Project.Controllers
         }
 
         // GET: Drinks/Details/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Drinks == null)
@@ -86,6 +89,7 @@ namespace Project.Controllers
         }
 
         // GET: Drinks/Create
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create()
         {
             ViewData["Types"] = new SelectList(_context.Categories, nameof(Category.Id), nameof(Category.Name));           
@@ -97,6 +101,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([Bind("Id,Name,Quantity,Price,CategoryId")] Drink drink)
         {
             if (ModelState.IsValid)
@@ -110,6 +115,7 @@ namespace Project.Controllers
         }
 
         // GET: Drinks/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.Drinks == null)
@@ -131,6 +137,7 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Quantity,Price,CategoryId")] Drink drink)
         {
             if (id != drink.Id)
@@ -163,6 +170,7 @@ namespace Project.Controllers
         }
 
         // GET: Drinks/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Drinks == null)
@@ -183,6 +191,7 @@ namespace Project.Controllers
         // POST: Drinks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.Drinks == null)
@@ -203,7 +212,7 @@ namespace Project.Controllers
         {
           return _context.Drinks.Any(e => e.Id == id);
         }
-
+        [Authorize]
         public async Task<IActionResult> Order(string sortOrder, string currentFilter, string searchString, int? pageNumber)
         {          
             ViewData["CurrentSort"] = sortOrder;

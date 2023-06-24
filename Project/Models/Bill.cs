@@ -7,7 +7,7 @@ namespace Project.Models
     {
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
-        public Double Payment { get; set; }
+        public decimal Payment { get; set; }
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
         //[Required]

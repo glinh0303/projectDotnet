@@ -1,9 +1,11 @@
+using AspNetCore.Unobtrusive.Ajax;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Project;
 using Project.Data;
 using Project.Models;
+
 
 namespace Project
 {
@@ -71,6 +73,8 @@ namespace Project
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseUnobtrusiveAjax();
+            //It is suggested to place it after UseStaticFiles()
             app.UseRouting();
 
             app.UseAuthentication();

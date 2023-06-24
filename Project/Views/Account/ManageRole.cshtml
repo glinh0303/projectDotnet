@@ -1,50 +1,49 @@
-﻿@*<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-5">
-            <div>All Users</div>
-            @foreach(AppUser user in ViewBag.Users)
-            {
-                <div class="row">
-                    @Html.AjaxActionLink(user.Profile?.FullName??user.Email, "GetRole", new {id=user.Id},
+﻿<form asp-action="ManageRole">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-md-5">
+                <div>All Users</div>
+                @foreach (AppUser user in ViewBag.Users)
+                {
+                    <div class="row">
+                        @Html.AjaxActionLink(user.Profile?.FullName??user.Email, "GetRole", new {id=user.Id},
                     new AjaxOptions{
-                        UpdateTargetId = "form",
-                        LoadingElementId = "loading",
-                        HttpMethod = "GET",
-                        InsertionMode = InsertionMode.Replace,
-                        OnSuccess = "clearResult"})
-                </div>
-            }
-        </div>
+                    UpdateTargetId = "form",
+                    LoadingElementId = "loading",
+                    HttpMethod = "GET",
+                    InsertionMode = InsertionMode.Replace,
+                    OnSuccess = "clearResult"})
+                    </div>
+                }
+            </div>
 
-        <div class="col-md-5">
-            <div id="loading" style="display:none">Loading....................</div>
-            @using(Html.AjaxBeginForm(new AjaxOptions
-            {
-                HttpMethod = "post",
-                InsertionMode = InsertionMode.Replace,
-                UpdateTargetId = "result",
-                LoadingElementId = "loading",
-                OnBegin="clearSubmitResult"
-            }))
-            {
-                <div class="form-group" id="form">
-                </div
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary" />
-                </div>
-            }
+            <div class="col-md-5">
+                <div id="loading" style="display:none">Loading....................</div>
+                @using (Html.AjaxBeginForm(new AjaxOptions
+                 {
+                     HttpMethod = "post",
+                     InsertionMode = InsertionMode.Replace,
+                     UpdateTargetId = "result",
+                     LoadingElementId = "loading",
+                     OnBegin = "clearSubmitResult"
+                 }))
+                {
+                    <div class="form-group" id="form">
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                }
 
-            <div id="result"></div>
+                <div id="result"></div>
+            </div>
         </div>
     </div>
-</div>
-
+</form>
 
 <script>
-    function clearResult(){
-            document.getElementById("loading").style="display: none";
+    function clearResult() {
+        document.getElementById("loading").style = "display: none";
     }
-    function clearSubmitResult(){
-        document.getElementById("result").innerHTML("");
-    }
-</script>*@
+
+</script>

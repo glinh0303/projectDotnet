@@ -20,6 +20,15 @@ namespace Project.Controllers
         {
             String userName = User.Identity.Name;
             var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var rank = _context.Ranks.SingleOrDefault(r => r.Id == user.Profile.RankId);
+            if (rank != null) {
+                ViewBag.Rank = rank.Name;
+            }
+            else
+            {
+                ViewBag.Rank = "";
+            }
+          
             var existingProfile = user.Profile;
             return View(existingProfile);
         }

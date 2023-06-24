@@ -7,7 +7,7 @@ namespace Project.Models.BindingModels
     {
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
-        public Double Payment { get; set; }
+        public decimal Payment { get; set; }
         [Range(0, int.MaxValue)]
         public int Quantity { get; set; }
         [Required]
@@ -20,6 +20,6 @@ namespace Project.Models.BindingModels
         [ForeignKey(nameof(OrderDetail))]
         public ICollection<OrderDetail> OrderDetails { get; set; }
         public int UserId { get; set; }
-        public double discount { get; set; }
+        public decimal discount { get; set; }
     }
 }

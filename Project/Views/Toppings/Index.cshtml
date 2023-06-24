@@ -34,8 +34,11 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Quantity)
             </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
+                <td>          
+                    @{
+                        var price = item.Price.FormatNumber();
+                    }
+                    @price
                 </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |

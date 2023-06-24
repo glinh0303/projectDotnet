@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Project.Data;
 
@@ -11,9 +12,10 @@ using Project.Data;
 namespace Project.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230624040256_Rank")]
+    partial class Rank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,8 +266,8 @@ namespace Project.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("Payment")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("Payment")
+                        .HasColumnType("float");
 
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
@@ -423,8 +425,8 @@ namespace Project.Migrations
                     b.Property<int>("RankId")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("totalPayment")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("totalPayment")
+                        .HasColumnType("float");
 
                     b.HasKey("UserId");
 
@@ -439,14 +441,14 @@ namespace Project.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<decimal>("DiscountRate")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("DiscountRate")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal>("totalMoney")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<double>("totalMoney")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 

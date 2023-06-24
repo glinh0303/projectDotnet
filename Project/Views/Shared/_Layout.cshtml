@@ -29,8 +29,14 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Bills" asp-action="History">History</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Index">Clients</a>
-                        </li>         
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Drinks" asp-action="Order">Order</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="OrderDetails" asp-action="Cart">Carts</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Profile" asp-action="Index">Profile</a>
+                        </li>
                         <partial name="_CartgoryPartial" />
                     </ul>
                     <partial name="_LoginPartial" />

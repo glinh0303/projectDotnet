@@ -170,6 +170,7 @@ namespace Project.Controllers
 
         //inject 2 service to get users
         public IActionResult ManageRole([FromServices] ApplicationDbContext contect)
+        
         {
             var users = contect.Users.Include(x => x.Profile).ToList();
             ViewBag.Users = users;

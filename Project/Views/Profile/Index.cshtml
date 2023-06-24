@@ -10,6 +10,7 @@
 }
 
 <h1>User Profile</h1>
+<h4>Membership: @ViewBag.Rank</h4>
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Index" enctype="multipart/form-data" method="post">
@@ -17,7 +18,7 @@
             <div class="form-group">
                 <label asp-for="Avatar" class="control-label"></label>
                 <input asp-for="Avatar" type="file" accept="image/*" onchange="loadFile(event)" class="form-control" />
-                <img id="output" src="@user.Profile?.Avatar??defaultAva" />
+                <img id="output" src="@(Model?.Avatar??defaultAva)" />
             </div>
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
@@ -75,6 +76,7 @@
         @{
             await Html.RenderPartialAsync("_ValidationScriptsPartial");
         }
+
         <script>
             var loadFile = function (event) {
                 var output = document.getElementById('output');

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Project.Models;
+using System.Data;
 using System.Diagnostics;
 
 namespace Project.Controllers
@@ -17,7 +19,7 @@ namespace Project.Controllers
         {
             return View();
         }
-
+        [Authorize(Roles = "admin")]
         public IActionResult Privacy()
         {
             return View();

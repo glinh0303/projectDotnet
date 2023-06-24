@@ -3,7 +3,7 @@
 @{
     Layout = null;
 }
-
+<form asp-action="ManageRole">
 <div class="form-group">
     <input asp-for="UserId" class="form-control" type="hidden" value="@ViewBag.UserId"/>
     <div class="form-group">
@@ -14,5 +14,7 @@
             </option>
         </select>
         <span asp-validation-for="RoleId" class="text-danger"></span>
+        <input type="submit" value="Save" class="btn btn-primary" />
     </div>
 </div>
+</form>
