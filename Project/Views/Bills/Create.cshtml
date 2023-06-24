@@ -50,7 +50,8 @@
                             <th>Toppings</th>
                             <th>Size</th>
                             <th>Price</th>
-                            <th>Payment</th>
+                           
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -71,15 +72,22 @@
                                 </td>
                                 <td>@detail.Size.ToString()</td>
                                 <td>@((detail.Payment / detail.Quantity).FormatNumber())</td>
-                                <td>@detail.Payment.FormatNumber()</td>
+                               
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+            <div>
+                <h4>Total: <span>@ViewBag.Total</span></h4>
+            </div>
+            <div>
+                <h4>Discount: <span>@string.Format("{0:F2}", Convert.ToDouble(ViewBag.Total) * Convert.ToDouble(Model.discount))</span></h4>
+            </div>
+            <div class="form-group">               
             <div class="form-group">
-                <h4>Payment: @ViewBag.Total</h4>
-                <input asp-for="Payment" class="form-control" type="hidden" value="@ViewBag.Total" />
+                <h4>Payment:@( Convert.ToDouble(ViewBag.Total)-Convert.ToDouble(ViewBag.Total)*Convert.ToDouble(@Model.discount))</h4>
+                <input asp-for="Payment" class="form-control" type="hidden" value="@( Convert.ToDouble(ViewBag.Total)-Convert.ToDouble(ViewBag.Total)*Convert.ToDouble(@Model.discount))" />
             </div>
             <div class="form-group">
                 <button asp-action="Create" asp-controller="Bills" asp-route-id="@Model.Id">Order</button>               

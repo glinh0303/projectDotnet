@@ -8,6 +8,12 @@
     var s = prieS.FormatNumber();
     var m = priceM.FormatNumber();
     var l = priceL.FormatNumber();
+    double priceS= 0.00;
+    double priceM =  5.00;
+    double priceL =  10.00;
+    string s = priceS.ToString();
+    string m = priceM.ToString();
+    string l = priceL.ToString();
     var selectItems = new[]
     {
         new {Text="S - " + s, Value=DrinkSize.S},
@@ -59,12 +65,22 @@
                             </div>
                         }                      
                     }
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" onchange="updateTotal()" value="@topping.Id" name="selectedToppings" data-price="@topping.Price" />
+                            <label class="form-check-label" for="inlineCheckbox1">
+                                <p>@topping.Name: @topping.Price</p>
+                            </label>
+                        </div>
+                    }
                 </div>
             </div>
             <div class="form-group">
                 <label asp-for="Size" class="control-label"></label>
-                <select asp-for="Size" class="form-control" asp-items="selectSize"></select>
+                <select asp-for="Size" class="form-control" asp-items="selectSize" onchange="updateTotal()"></select>
                 <br />
+                <div>
+                    <h5>Total:<span id="total">@ViewBag.Price</span> </h5>
+                </div>
                 <div class="form-group">
                     <td>
                         <input type="submit" value="Add to cart" class="btn btn-primary" />
@@ -148,6 +164,7 @@
             } else {
                 value++;
                 document.getElementById('number').value = value;
+                updateTotal();
             }
         }
 
@@ -157,6 +174,31 @@
             value < 1 ? value = 1 : '';
             value--;
             document.getElementById('number').value = value;
+            updateTotal();
+        }
+        function updateTotal() {
+            var checkboxes = document.getElementsByName('selectedToppings');
+            quantity = document.getElementById('number').value ;
+            var size = document.getElementById('Size').value;
+            var price;
+            if (size === "S") {
+                price = 0;
+            } else if (size === "M") {
+                price = 5;
+            } else if (size === "L") {
+                price = 10;
+            } else {
+                price = 0;
+            }
+            PriceTopp=0
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].checked) {
+                    var toppingPrice = parseFloat(checkboxes[i].getAttribute('data-price'));
+                    PriceTopp += toppingPrice;
+                }
+            }
+            var total = quantity * (@ViewBag.Price+price + PriceTopp);
+            document.getElementById('total').textContent = total.toFixed(2);
         }
     </script>
 }

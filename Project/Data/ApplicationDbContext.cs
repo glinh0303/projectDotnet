@@ -18,6 +18,7 @@ namespace Project.Data
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Topping> Toppings { get; set; }
+        public DbSet<Rank> Ranks { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -27,7 +28,8 @@ namespace Project.Data
             builder.Entity<Drink>().ToTable("Drink");
             builder.Entity<Topping>().ToTable("Topping");
             builder.Entity<Category>().ToTable("Category");
-
+            builder.Entity<Rank>().ToTable("Rank");
+            builder.Entity<Member>().ToTable("Member");
             builder.Entity<Size>()
                .HasKey(o => new { o.DrinkId, o.DrinkSize });
         }

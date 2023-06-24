@@ -20,6 +20,6 @@ namespace Project.Models.BindingModels
         [ForeignKey(nameof(OrderDetail))]
         public ICollection<OrderDetail> OrderDetails { get; set; }
         public int UserId { get; set; }
-
+        public double discount { get; set; }
     }
 }

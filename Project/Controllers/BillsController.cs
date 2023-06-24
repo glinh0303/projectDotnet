@@ -82,6 +82,9 @@ namespace Project.Controllers
                 .SingleOrDefaultAsync(or => or.UserId == profile.UserId && or.Status == OrderStatus.Cart);
             var total = bill.OrderDetails.Sum(x => x.Payment);
             ViewBag.Total = total.FormatNumber();
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var rank = _context.Ranks.SingleOrDefault(r => r.Id == user.Profile.RankId);
+            Console.WriteLine(rank.DiscountRate.ToString());
             var model = new BillBindingModel
             {
                 Id = bill.Id,
@@ -92,6 +95,7 @@ namespace Project.Controllers
                 Note = bill.Note,
                 UserId = userId,
                 OrderDetails = bill.OrderDetails,
+               discount= rank.DiscountRate
             };
             return View(model);
         }
@@ -106,6 +110,9 @@ namespace Project.Controllers
         {
             if (ModelState.IsValid)
             {
+                String userName = User.Identity.Name;
+                var profile = CurrentUser?.Profile;
+                
                 var findBill = await _context.Orders.SingleOrDefaultAsync(order => order.UserId == CurrentUser.Id && order.Status == OrderStatus.Cart && order.Id == bill.Id);
                 if (findBill != null)
                 {
@@ -116,6 +123,7 @@ namespace Project.Controllers
                                .Include(x => x.OrderDetails)
                                    .ThenInclude(x => x.Toppings)
                                .FirstOrDefaultAsync(o => o.UserId == bill.UserId && o.Status == OrderStatus.Cart);
+                    
                     findBill.User = user;
                     findBill.Payment = bill.Payment;
                     findBill.Quantity = bill.Quantity;
@@ -127,6 +135,7 @@ namespace Project.Controllers
                     findBill.Phone = bill.Phone;
                     List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
                     findBill.OrderDetails = orderDetails;
+                    List<Rank> a = _context.Ranks.ToList();
                     foreach (var item in orderDetails)
                     {
                         Drink drink = item.Drink;
@@ -142,6 +151,19 @@ namespace Project.Controllers
                             }
                         }
                     }
+                    var rank = _context.Ranks.SingleOrDefault(r => r.Id == profile.RankId);
+                    
+                     if (a.Count > rank.Id)
+                        {
+                        var nextrank = _context.Ranks.SingleOrDefault(r => r.Id == profile.RankId + 1);
+                        if (profile.totalPayment+ findBill.Payment >= nextrank.totalMoney)
+                        {
+
+                            profile.RankId = rank.Id + 1;
+                        }
+                    }
+                    profile.totalPayment += bill.Payment;
+                    _context.Update(profile);
                     _context.Update(findBill);
                     await _context.SaveChangesAsync();
                     return RedirectToAction("Details", "Bills", new { id = findBill.Id });
