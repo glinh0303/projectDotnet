@@ -79,7 +79,16 @@ namespace Project
 
             app.UseAuthentication();
             app.UseAuthorization();
-
+            app.MapControllerRoute(
+                name: "Sales",
+                pattern: "Sales/TopProducts",
+                defaults: new { controller = "Sales", action = "TopProducts" }
+            );
+            app.MapControllerRoute(
+                name: "Sales",
+                pattern: "Sales/DailyStatistics",
+                defaults: new { controller = "Sales", action = "DailyStatistics" }
+            );
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

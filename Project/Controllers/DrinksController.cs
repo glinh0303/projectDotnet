@@ -21,6 +21,10 @@ namespace Project.Controllers
         // GET: Drinks
         public async Task<IActionResult> Index(int? categoriesid, string sortOrder, string currentFilter,string searchString,int? pageNumber)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
+           /* return View(existingProfile);*/
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
@@ -73,6 +77,9 @@ namespace Project.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Details(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.Drinks == null)
             {
                 return NotFound();
@@ -92,6 +99,9 @@ namespace Project.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create()
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             ViewData["Types"] = new SelectList(_context.Categories, nameof(Category.Id), nameof(Category.Name));           
             return View();
         }
@@ -118,6 +128,9 @@ namespace Project.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.Drinks == null)
             {
                 return NotFound();
@@ -173,6 +186,9 @@ namespace Project.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.Drinks == null)
             {
                 return NotFound();
