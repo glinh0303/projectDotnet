@@ -22,6 +22,10 @@ namespace Project.Controllers
         // GET: OrderDetails
         public async Task<IActionResult> Index(int? toppingId)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
+         
             IQueryable<OrderDetail> orderDetailsQuery = _context.OrderDetails.Include(o => o.Toppings)
                                                                              .Include(o => o.Drink);
             if (toppingId != null)
@@ -35,6 +39,9 @@ namespace Project.Controllers
         // GET: OrderDetails/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.OrderDetails == null)
             {
                 return NotFound();
@@ -54,6 +61,9 @@ namespace Project.Controllers
         // GET: OrderDetails/Create
         public async Task<IActionResult> Create()
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             ViewData["Toppings"] = await _context.Toppings.ToListAsync();
             ViewData["DrinkId"] = new SelectList(_context.Drinks, "Id", "Name");
             /*            ViewData["OrderId"] = new SelectList(_context.Orders, "Id", "Address");
@@ -82,6 +92,9 @@ namespace Project.Controllers
         // GET: OrderDetails/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.OrderDetails == null)
             {
                 return NotFound();
@@ -137,6 +150,9 @@ namespace Project.Controllers
         // GET: OrderDetails/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
+            String userName = User.Identity.Name;
+            var user = _context.Users.Include(u => u.Profile).SingleOrDefault(u => u.UserName == userName);
+            var existingProfile = user.Profile;
             if (id == null || _context.OrderDetails == null)
             {
                 return NotFound();
