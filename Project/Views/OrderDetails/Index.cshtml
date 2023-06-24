@@ -38,7 +38,10 @@
                     @Html.DisplayFor(modelItem => item.Quantity)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Payment)
+                    @{
+                        string price = item.Payment.FormatNumber();
+                    }
+                    @price
                 </td>
                 <td>
                     @foreach (var topping in item.Toppings)

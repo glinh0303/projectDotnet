@@ -20,45 +20,66 @@ namespace Project.Controllers
         {
         }
 
-        // GET: Orders
+        // GET: Orders      
         public async Task<IActionResult> Index()
-        {
-            /* var applicationDbContext = _context.Orders.Include(o => o.User);*/
-            /*return View(await applicationDbContext.ToListAsync());*/
-            return View();
+        {                          
+            var bills = await _context.Orders.Where(x => x.Status == OrderStatus.Paid).ToListAsync();
+            foreach (var item in bills)
+            {
+                var user = _context.Users.FirstOrDefault(x => x.Id == item.UserId);
+                var username = user.UserName;
+                var currentUser = _context.Users.Include(user => user.Profile)
+                    .FirstOrDefault(x => x.UserName == username);
+                Profile profile = currentUser.Profile;
+                ViewBag.UserName = profile?.FirstName == null || profile?.LastName == null ? username : profile.FullName;
+            }
+            return View(bills);
         }
 
-        // GET: Orders/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> History()
         {
-            if (id == null || _context.Orders == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders
-                /*  .Include(o => o.User)*/
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            return View(order);
-        }
-
-        // GET: Orders/Create
-        public async Task<IActionResult> Create()
-        {
-            
+            var userId = CurrentUser.Id;
             String userName = User.Identity.Name;
             var profile = CurrentUser?.Profile;
             ViewBag.UserName = profile?.FirstName == null || profile?.LastName == null ? userName : profile.FullName;
-            int userId = CurrentUser.Id;       
+            var bills = await _context.Orders.Where(x => x.Status == OrderStatus.Paid && x.UserId == userId).ToListAsync();
+            return View(bills);
+        }
+
+        // GET: Orders/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var profile = CurrentUser?.Profile;
+            ViewBag.UserName = profile?.FirstName == null || profile?.LastName == null ? CurrentUser.UserName : profile.FullName;
+            var bill = await _context.Orders.Include(x => x.OrderDetails)
+               .ThenInclude(x => x.Drink)
+               .Include(x => x.OrderDetails)
+               .ThenInclude(x => x.Toppings)
+               .SingleOrDefaultAsync(or => or.UserId == profile.UserId && or.Id == id);
+
+            if (bill == null)
+            {
+                return NotFound();
+            }
+
+            return View(bill);
+        }
+
+        // GET: Orders/Create
+        /*[Route("/Bills/Create")]*/
+        public async Task<IActionResult> Create()
+        {
+
+            String userName = User.Identity.Name;
+            var profile = CurrentUser?.Profile;
+            ViewBag.UserName = profile?.FirstName == null || profile?.LastName == null ? userName : profile.FullName;
+            int userId = CurrentUser.Id;
 
             var bill = await _context.Orders.Include(x => x.OrderDetails)
                 .ThenInclude(x => x.Drink)
-                .SingleOrDefaultAsync(or => or.UserId == profile.UserId && or.Status == OrderStatus.Cart);          
+                .Include(x => x.OrderDetails)
+                .ThenInclude(x => x.Toppings)
+                .SingleOrDefaultAsync(or => or.UserId == profile.UserId && or.Status == OrderStatus.Cart);
             var total = bill.OrderDetails.Sum(x => x.Payment);
             ViewBag.Total = total.FormatNumber();
             var model = new BillBindingModel
@@ -80,12 +101,14 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,OrderDetails,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note,Status")] Bill bill)
+       /* [Route("/Bills/Create")]*/
+        public async Task<IActionResult> Create([Bind("Id,OrderDetails,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note,Status")] Bill bill, int id)
         {
             if (ModelState.IsValid)
             {
                 var findBill = await _context.Orders.SingleOrDefaultAsync(order => order.UserId == CurrentUser.Id && order.Status == OrderStatus.Cart && order.Id == bill.Id);
-                if (findBill != null) {
+                if (findBill != null)
+                {
                     var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == bill.UserId);
                     var cart = await _context.Orders
                                .Include(x => x.OrderDetails)
@@ -101,21 +124,29 @@ namespace Project.Controllers
                     findBill.CreatedDate = DateTime.Now;
                     findBill.Address = bill.Address;
                     findBill.Note = bill.Note;
-                    findBill.Phone = bill.Phone;                         
+                    findBill.Phone = bill.Phone;
                     List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
                     findBill.OrderDetails = orderDetails;
                     foreach (var item in orderDetails)
                     {
                         Drink drink = item.Drink;
                         drink.Quantity -= item.Quantity;
-                         _context.Update(drink);
+                        _context.Update(drink);
+                        var toppings = item.Toppings;
+                        if (toppings != null)
+                        {
+                            foreach (var topping in toppings)
+                            {
+                                topping.Quantity -= item.Quantity;
+                                _context.Update(topping);
+                            }
+                        }
                     }
                     _context.Update(findBill);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }      
+                    return RedirectToAction("Details", "Bills", new { id = findBill.Id });
+                }
             }
-           /* ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", bill.UserId);*/
             return View(bill);
         }
 
@@ -141,23 +172,28 @@ namespace Project.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderDetailId,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note")] Bill order)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,OrderDetails,UserId,CreatedDate,Payment,Quantity,Address,Phone,Note,Status")] Bill bill)
         {
-            if (id != order.Id)
+            if (id != bill.Id)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            var billToUpdate = await _context.Orders.Include(x => x.OrderDetails)
+              .ThenInclude(x => x.Drink)
+              .Include(x => x.OrderDetails)
+              .ThenInclude(x => x.Toppings)
+              .SingleOrDefaultAsync(or => or.Id == id);
+            if (await TryUpdateModelAsync<Bill>(billToUpdate, "", m => m.Note, m => m.Phone, m => m.Address, m => m.Payment))
+                if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(order);
+                   /* _context.Update(billToUpdate);*/
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrderExists(order.Id))
+                    if (!OrderExists(billToUpdate.Id))
                     {
                         return NotFound();
                     }
@@ -168,8 +204,8 @@ namespace Project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", order.UserId);
-            return View(order);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", billToUpdate.UserId);
+            return View(billToUpdate);
         }
 
         // GET: Orders/Delete/5
@@ -181,7 +217,6 @@ namespace Project.Controllers
             }
 
             var order = await _context.Orders
-                /*.Include(o => o.User)*/
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (order == null)
             {
@@ -214,23 +249,5 @@ namespace Project.Controllers
         {
             return _context.Orders.Any(e => e.Id == id);
         }
-        /* public async Task<IActionResult> Bill([Bind("Id,UserId,Payment")])
-         {
-             if (ModelState.IsValid)
-             {
-                 List<OrderDetail> orderDetails = cart.OrderDetails.ToList();
-                 foreach (var item in orderDetails)
-                 {
-                     Drink drink = item.Drink;
-                     drink.Quantity -= item.Quantity;
-                     await TryUpdateModelAsync(drink);
-                 }
-
-                 _context.Add(cart);
-                 await _context.SaveChangesAsync();
-                 return Redirect(Url.Action("Index", "Order"));
-             }
-             return View(cart);
-         }*/
     }
 }

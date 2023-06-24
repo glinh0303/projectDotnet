@@ -244,11 +244,11 @@ namespace Project.Controllers
             decimal price = orderDetail.Drink.Price;
             if (orderDetail.Size == DrinkSize.M)
             {
-                price += 5;
+                price += 5000;
             }
             else if (orderDetail.Size == DrinkSize.L)
             {
-                price += 10;
+                price += 10000;
             }
             return price;
         }

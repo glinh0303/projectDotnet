@@ -37,7 +37,10 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Price)
+                    @{
+                        string price = item.Price.FormatNumber();
+                    }
+                    @price
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Category.Name)
@@ -46,10 +49,8 @@
                     @{
                         if (item.Quantity <= 0)
                         {
-                            <input type="submit" value="Order" class="btn btn-primary" asp-action="Order" asp-controller="OrderDetails" disabled/>
-                           // <a asp-action="Order" asp-controller="OrderDetails" asp-route-id="@item.Id" >Order</a>
+                            <input type="submit" value="Order" class="btn btn-primary" asp-action="Order" asp-controller="OrderDetails" disabled/>                          
                         }else{
-                            //<input type="submit" value="Order" class="btn btn-primary" asp-action="Order" asp-controller="OrderDetails" asp-route-id="@item.Id" />
                             <a asp-action="Order" asp-controller="OrderDetails" asp-route-id="@item.Id" >Order</a>
                         }         
                         }         

@@ -205,9 +205,7 @@ namespace Project.Controllers
         }
 
         public async Task<IActionResult> Order(string sortOrder, string currentFilter, string searchString, int? pageNumber)
-        {
-            /*ViewData["Types"] = new SelectList(_context.Categories, nameof(Category.Id), nameof(Category.Name));
-            return View();*/
+        {          
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParm"] = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["CategorySortParm"] = sortOrder == "Category" ? "category_desc" : "Category";
@@ -222,9 +220,7 @@ namespace Project.Controllers
             }
             ViewData["CurrentFilter"] = searchString;
 
-            IQueryable<Drink> drinkQuery = _context.Drinks.Include(d => d.Category);
-            /*            var drink = await drinkQuery.ToListAsync();
-            */
+            IQueryable<Drink> drinkQuery = _context.Drinks.Include(d => d.Category);           
             var drinks = from d in drinkQuery
                          select d;
             if (!String.IsNullOrEmpty(searchString))

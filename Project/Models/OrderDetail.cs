@@ -15,10 +15,8 @@ namespace Project.Models
         public decimal Payment { get; set; }
         public Drink Drink { get; set; }
         public DrinkSize Size { get; set; }
-        
         public int BillId { get; set; }
         public Bill Bill { get; set; }
-        public int OrderStatus { get; set; } = 0;
         public ICollection<Topping> Toppings { get; set; }
     }
 }

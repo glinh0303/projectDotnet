@@ -2,11 +2,12 @@
 
 @{
     ViewData["Title"] = "Order-detail";
-    decimal priceM = ViewBag.Price + 5;
-    decimal priceL = ViewBag.Price + 10;
-    string s = ViewBag.Price.ToString();
-    string m = priceM.ToString();
-    string l = priceL.ToString();
+    decimal priceM = ViewBag.Price + 5000;
+    decimal priceL = ViewBag.Price + 10000;
+    decimal prieS = ViewBag.Price;
+    var s = prieS.FormatNumber();
+    var m = priceM.FormatNumber();
+    var l = priceL.FormatNumber();
     var selectItems = new[]
     {
         new {Text="S - " + s, Value=DrinkSize.S},
@@ -39,12 +40,24 @@
                     }
                     @foreach (var topping in toppings)
                     {
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="@topping.Id" name="selectedToppings" />
-                            <label class="form-check-label" for="inlineCheckbox1">
-                                <p>@topping.Name: @topping.Price</p>
-                            </label>
-                        </div>
+                        if (topping.Quantity <= 0)
+                        {
+                            <div class="form-check form-check-inline" hidden>
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="@topping.Id" name="selectedToppings" />
+                                <label class="form-check-label" for="inlineCheckbox1">
+                                    <p>@topping.Name: @topping.Price.FormatNumber()</p>
+                                </label>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="@topping.Id" name="selectedToppings" />
+                                <label class="form-check-label" for="inlineCheckbox1">
+                                    <p>@topping.Name: @topping.Price.FormatNumber()</p>
+                                </label>
+                            </div>
+                        }                      
                     }
                 </div>
             </div>
