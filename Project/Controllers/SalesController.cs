@@ -16,11 +16,13 @@ namespace Project.Controllers
         public SalesController(ApplicationDbContext context) : base(context)
         {
         }
+        [Authorize(Roles = "admin")]
         public ActionResult Index()
         {
             return View();
         }
 
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> TopProductsAsync()
         {
             var drinkQuantities = await _context.OrderDetails.Include(od => od.Drink)
@@ -45,6 +47,7 @@ namespace Project.Controllers
         
          
         }
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> DailyStatistics()
       {
             // Retrieve sales data from your data source
@@ -68,8 +71,7 @@ namespace Project.Controllers
                 {
                     OrderDate = item.OrderDate,
                     OrderCount = item.OrderCount,
-                    Revenue = item.Revenue
-                  
+                    Revenue = (double)item.Revenue              
                 });
             }
             return View(daily);
